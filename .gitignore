@@ -1,0 +1,14 @@
+# Node dependencies
+node_modules
+
+# Logs
+logs
+*.log
+
+# Local env files
+bot.config.json
+bot.config.*
+!bot.config.example.json
+
+# Changelog
+CHANGELOG.md

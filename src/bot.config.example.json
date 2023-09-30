@@ -1,0 +1,26 @@
+{
+    "env": "dev",
+    "name": "CC-Radio",
+    
+    "auth": {
+        "app_id": "",
+        "public_key": "",
+        "bot_token": ""
+    },
+
+    "commandSettings": {
+        "prefix": "."
+    },
+
+    "handlerSettings": {
+        "youtube": {
+            "cookie": ""
+        },
+        "spotify": {
+            "client_id": "",
+            "client_secret": "",
+            "refresh_token": "",
+            "market": ""
+        }
+    }
+}
