@@ -11,9 +11,9 @@ import { MessageCommand, MessageCommandArgument } from '../modules/command'
 import { useGuildStore } from "../store";
 
 export const command = new MessageCommand({
-    name: 'toIndex',
-    alias: ['ti'],
-    description: 'Skips to given index in queue',
+    name: 'skipto',
+    alias: ['st'],
+    description: 'Skips to a given index in queue',
     args: [
         { name: 'Index', description: 'Index in queue to skip to.', required: false }
     ],
