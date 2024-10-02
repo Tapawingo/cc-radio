@@ -18,11 +18,16 @@ module.exports = {
 
             if (!channel) throw new Error('VoiceChannelMissingError');
 
-            const { track } = await player.play(channel, args.join(' '), {
+            const { track, searchResult } = await player.play(channel, args.join(' '), {
                 nodeOptions: {
                     metadata: interaction
                 }
             });
+
+            if (searchResult.hasPlaylist()) {
+                await interaction.editReply(`Queued **${ searchResult.tracks.length }** tracks.`);
+                return;
+            }
 
             await interaction.editReply({ embeds: [
                 new EmbedBuilder()
