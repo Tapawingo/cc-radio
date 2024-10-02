@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Events, Message } from 'discord.js';
 import { MessageCommandBuilder, MessageCommand } from '../../../utils/messageCommand';
-import { GuildQueue, useQueue } from "discord-player";
+import { GuildQueue, Track, useQueue } from "discord-player";
 
 module.exports = {
 	data: new MessageCommandBuilder()
@@ -34,31 +34,40 @@ module.exports = {
 const pagedEmbed = async (interaction: MessageCommand, message: Message, queue: GuildQueue) => {
     const backButton = new ButtonBuilder()
         .setStyle(ButtonStyle.Secondary)
-        .setLabel('Back')
-        .setEmoji('⬅️')
+        .setLabel('Previous Page')
+        .setEmoji('◀')
         .setCustomId(`${ message.id }-back`)
 
     const forwardButton = new ButtonBuilder()
         .setStyle(ButtonStyle.Secondary)
-        .setLabel('Forward')
-        .setEmoji('➡️')
+        .setLabel('Next Page')
+        .setEmoji('▶')
         .setCustomId(`${ message.id }-forward`)
 
     const generateEmbed = async (start: number) => {
         const tracks = queue.tracks.toArray().slice(start, start + 10);
-        
         const current_track = queue.currentTrack;
-        if (current_track) {
-            tracks.unshift(current_track);
-        }
+        const current_page = Math.floor(start / 10) + 1;
+        const pages = Math.floor((queue.tracks.size + 1) / 10) + 1;
+
+        const total_durationMS = queue.tracks.toArray().reduce((a, b) => {
+            return a + b.durationMS
+        }, 0);
 
         return new EmbedBuilder()
             .setTitle('Queue')
             .setColor(13632027)
-            .setThumbnail('https://cdn.discordapp.com/attachments/325719272745861126/1085462710847819816/cc_radio.jpg')
-            .setDescription(tracks.map((track, index) => {
-                return `**${ start + index === 0 ? '> ' : `${ start + index })` }** **[${ track.title }](${ track.url }) (${ track.duration })**`
-            }).join('\n'))
+            .setDescription([
+                `**Now playing:** [${ current_track?.title }](${ current_track?.url }) \`[${ current_track?.duration }]\` ● ${ current_track?.requestedBy }.`,
+                ` `,
+                `**Up Next:**`,
+                tracks.map((track, index) => {
+                    return `**${ start + index + 1 }.** [${ track.title }](${ track.url }) \`[${ track.duration }]\` ● ${ track.requestedBy }`
+                }).join('\n')
+            ].join('\n'))
+            .setFooter({
+                text: `Page ${ current_page }/${ pages } | ${ queue.tracks.size } song(s) | ${ msToHMS(total_durationMS) } total duration`
+            })
     }
 
     const components: any[] = [];
@@ -95,4 +104,22 @@ const pagedEmbed = async (interaction: MessageCommand, message: Message, queue: 
             components: [row]
         });
     });
+}
+
+const getUser = (track: Track) => {
+    return (track.metadata as MessageCommand).member?.user.id;
+}
+
+function msToHMS(ms: number) {
+    let seconds = ms / 1000;
+    const hours = Math.floor(seconds / 3600);
+    seconds = seconds % 3600;
+    const minutes = Math.floor(seconds / 60);
+    seconds = seconds % 60;
+
+    let formatted = `${ seconds }`;
+    if (minutes > 0) formatted = `${ minutes }:` + formatted
+    if (hours > 0) formatted = `${ hours }:` + formatted
+
+    return formatted;
 }

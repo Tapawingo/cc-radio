@@ -1,3 +1,5 @@
 config.bot.json
 node_modules
 .vscode
+*.diff
+dist

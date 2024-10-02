@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
-    "build": "tsup src/index.ts --minify"
+    "build": "tsc --build",
+    "clean": "tsc --build --clean"
   },
   "author": "Tapawingo",
   "license": "ISC",

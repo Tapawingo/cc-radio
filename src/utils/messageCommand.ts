@@ -1,15 +1,17 @@
-import { Message, MessageEditOptions, MessageReplyOptions } from "discord.js";
+import { Attachment, Collection, Message, MessageEditOptions, MessageReplyOptions } from "discord.js";
 
 export class MessageCommand {
   public declare readonly message: Message;
   public declare readonly command: string;
-  public declare readonly arguments: string[];
+  public declare readonly arguments?: string[];
+  public declare readonly attachments?: Collection<string, Attachment>;
   private interactionReply?: Message;
 
-  constructor (message: Message, command: string, args?: string[]) {
+  constructor (message: Message, command: string, args?: string[], attachments?: Collection<string, Attachment>) {
     this.message = message;
     this.command = command;
-    this.arguments = args ?? [];
+    this.arguments = args;
+    this.attachments = attachments;
   }
 
   get client() {
