@@ -1,3 +1,5 @@
+import { env } from "../config";
+
 enum cli_fg {
     black = '\x1b[30m',
     red = '\x1b[31m',
@@ -45,6 +47,7 @@ console.log = function(data) {
 };
 
 console.debug = function(data, scope?: 'BOT' | 'WEB') {
+    if (parseInt(env.LOG_LEVEL ?? '1') < 3) return;
     debug(`${ timestamp() }${ prettyScope(scope) }${ cli_bg.magenta }  DEBUG  ${ cli_bg.reset } ${ data }`);
 };
 
@@ -53,9 +56,11 @@ console.info = function(data, scope?: 'BOT' | 'WEB') {
 };
 
 console.error = function(data: string, scope?: 'BOT' | 'WEB') {
+    if (parseInt(env.LOG_LEVEL ?? '1') < 1) return;
     error(`${ timestamp() }${ prettyScope(scope) }${ cli_bg.red }  ERROR  ${ cli_bg.reset } ${ data }`);
 };
 
 console.warn = function(data, scope?: 'BOT' | 'WEB') {
+    if (parseInt(env.LOG_LEVEL ?? '1') < 2) return;
     warn(`${ timestamp() }${ prettyScope(scope) }${ cli_bg.yellow }  WARN  ${ cli_bg.reset } ${ data }`);
 };

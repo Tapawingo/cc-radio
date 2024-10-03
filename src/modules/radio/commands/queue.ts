@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Events, Message } from 'discord.js';
 import { MessageCommandBuilder, MessageCommand } from '../../../utils/messageCommand';
-import { GuildQueue, Track, useQueue } from "discord-player";
+import { GuildQueue, useQueue } from "discord-player";
 
 module.exports = {
 	data: new MessageCommandBuilder()
@@ -104,10 +104,6 @@ const pagedEmbed = async (interaction: MessageCommand, message: Message, queue: 
             components: [row]
         });
     });
-}
-
-const getUser = (track: Track) => {
-    return (track.metadata as MessageCommand).member?.user.id;
 }
 
 function msToHMS(ms: number) {

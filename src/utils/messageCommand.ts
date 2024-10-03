@@ -75,6 +75,10 @@ export class MessageCommandBuilder {
   public alias?: string[];
   public args: MessageCommandArgumentBuilder[] = [];
 
+  get type() {
+    return 100
+  }
+
   public setName(name: string): this {
     this.name = name;
     return this;
@@ -90,7 +94,7 @@ export class MessageCommandBuilder {
     return this;
   }
 
-  public addArg(option: Function): this {
+  public addArgument(option: (option: MessageCommandArgumentBuilder) => MessageCommandArgumentBuilder): this {
     this.args.push(option(new MessageCommandArgumentBuilder()));
     return this;
   }
@@ -99,4 +103,15 @@ export class MessageCommandBuilder {
 export class MessageCommandArgumentBuilder {
   public name!: string;
   public description: string = '';
+  public required: boolean = false;
+
+  public setName(name: string): this {
+    this.name = name;
+    return this;
+  }
+
+  public setRequired(required: boolean): this {
+    this.required = required;
+    return this;
+  }
 }

@@ -17,6 +17,10 @@ module.exports = async (client: Client) => {
 
     await player.extractors.loadDefault((ext) => ext !== 'YouTubeExtractor');
 
+    player.on('debug', d => {
+        console.debug(d, 'PLAYER');
+    })
+
     player.on('error', e => {
         console.error(e, 'PLAYER')
     });

@@ -4,7 +4,7 @@ import { MessageCommand, MessageCommandBuilder } from "../../../utils/messageCom
 module.exports = {
 	data: new MessageCommandBuilder()
         .setName('purge')
-        .setDescription('Purges queue.')
+        .setDescription('Empties the queue.')
         .setAlias(['pu']),
 
 	async execute(interaction: MessageCommand) {

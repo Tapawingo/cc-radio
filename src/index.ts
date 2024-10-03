@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import { Client, Events, GatewayIntentBits, Collection } from 'discord.js';
-import { config } from "./config";
+import { config, env } from "./config";
 
 import './utils/console';
 import parseCommand from './utils/parseCommand';
@@ -26,7 +26,8 @@ client.commands = new Collection();
 
 client.once(Events.ClientReady, () => {
     for (const module of modules) {
-        console.info(`Loading module "${ module }"..`, 'BOT');
+        let loadTimeStart = performance.now();
+        console.info(`Loading "${ module }" module..`, 'BOT');
         const modulePath = path.join(modulesPath, module);
         const moduleIndexPath = path.join(modulePath, 'index.ts');
 
@@ -57,6 +58,9 @@ client.once(Events.ClientReady, () => {
                 }
             }
         }
+
+        let loadTimeEnd = performance.now();
+        console.info(`Loaded "${ module }" module (${ (loadTimeEnd - loadTimeStart).toFixed(2) }ms)`, 'BOT');
     };
 
     const initEndTime = performance.now();
@@ -68,7 +72,7 @@ client.on(Events.InteractionCreate, async interaction => {
 	if (interaction.isChatInputCommand() || interaction.isContextMenuCommand()) {
         const command = interaction.client.commands.get(interaction.commandName);
 
-        console.debug(`Received command ${ interaction.commandName }`);
+        console.info(`Received command ${ interaction.commandName }`);
     
         if (!command) {
             console.error(`No command matching ${ interaction.commandName } was found.`, 'BOT');
@@ -97,7 +101,8 @@ if (config.bot.command_prefix) {
         
         const command = client.commands.get(messageCommand.command);
         if (!command) return;
-    
+        
+        console.debug(`Received Message Command "${ messageCommand.command }"`);
         try {
             await command.execute(messageCommand);
         } catch (e: any) {
@@ -105,12 +110,21 @@ if (config.bot.command_prefix) {
             await message.reply({ content: `There was an error while executing this command (${ e.name })!`, allowedMentions: { users: [] } });
         }
     });
-    console.debug('Registered MessageCommands');
 }
 
 /* Handle errors */
 client.on(Events.Error, e => {
-    console.error(e);
-})
+    console.error(e, 'DISCORDJS');
+});
+
+if (parseInt(env.LOG_LEVEL ?? '1') < 1) {
+    process.on('uncaughtException', (e) => {
+        console.error(e, 'UNCAUGHT');
+    });
+}
+
+client.on(Events.Debug, d => {
+    console.debug(d, 'DISCORDJS');
+});
 
 client.login(config.bot.token);

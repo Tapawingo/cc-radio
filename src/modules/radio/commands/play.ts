@@ -5,6 +5,11 @@ import { Track, useMainPlayer } from "discord-player";
 module.exports = {
 	data: new MessageCommandBuilder()
         .setName('play')
+        .setDescription('Play a track from either a URL or an attached file.')
+        .addArgument(option => option
+            .setName('query or file Attachment')
+            .setRequired(true)
+        )
         .setAlias(['p']),
 
 	async execute(interaction: MessageCommand) {
@@ -23,15 +28,19 @@ module.exports = {
                 const attachment = attachments.first();
                 if (!attachment?.url) return;
 
-                let { track } = await player.play(channel, attachment.url, {
-                    nodeOptions: {
-                        metadata: interaction
-                    },
-                    requestedBy: interaction.member.user
-                });
+                try {
+                    let { track } = await player.play(channel, attachment.url, {
+                        nodeOptions: {
+                            metadata: interaction
+                        },
+                        requestedBy: interaction.member.user
+                    });
 
-                reply(interaction, track);
-                return;
+                    reply(interaction, track);
+                    return;
+                } catch (e: any) {
+                    console.error(e);
+                }
             }
 
             if (!args) throw new Error('MissingQueryArgs');
@@ -50,11 +59,19 @@ module.exports = {
             reply(interaction, track);
         } catch (e: any) {
             console.error(e, 'RADIO');
-            if (e.message === 'VoiceChannelMissingError') {
-                await interaction.editReply('You are not connected to a voice channel!');
-            } else if (e.message === 'MissingQueryArgs') {
-                await interaction.editReply(`Missing query argument.`);
-            };
+            switch (e.message) {
+                case 'VoiceChannelMissingError':
+                    await interaction.editReply('You are not connected to a voice channel!');
+                    break;
+                
+                case 'MissingQueryArgs':
+                    await interaction.editReply(`Missing query argument.`);
+                    break;
+
+                default:
+                    await interaction.editReply(`Something went wrong.`);
+                    break;
+            }
         }
 	},
 };
