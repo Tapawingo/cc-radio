@@ -1,0 +1,12 @@
+{
+    "bot": {
+        "token": "bot token",
+        "client_id": "bot client id",
+        "command_prefix": ","
+    },
+    "extractors": {
+        "youtube": {
+            "token": "youtube access token (for youtube login, see discord-player docs)"
+        }
+    }
+}
