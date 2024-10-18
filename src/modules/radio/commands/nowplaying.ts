@@ -43,9 +43,9 @@ const reply = async (interaction: MessageCommand, queue: GuildQueue, track: Trac
             .setTitle(`**${ track.title }**`)
             .setDescription([
                 `${ sToHMS(queue.node.getTimestamp()?.progress) } `,
-                `<:bar_start:1296620216754896896>`,
-                `<:bar_middle:1296620233338916925>`.repeat(13),
-                `<:bar_end:1296620249675858022>`,
+                `<:bar_start:1296631298198081607>`,
+                `<:bar_middle:1296631315860426792>`.repeat(13),
+                `<:bar_end:1296631332612476988>`,
                 `${ track.duration }`
             ].join(''))
             .setFooter({
