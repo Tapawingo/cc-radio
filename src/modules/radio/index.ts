@@ -1,6 +1,6 @@
 import { Player } from 'discord-player';
 import { YoutubeiExtractor } from 'discord-player-youtubei';
-import { Client, TextChannel } from 'discord.js';
+import { Client, EmbedBuilder, TextChannel } from 'discord.js';
 import { MessageCommand } from '../../utils/messageCommand';
 import { config } from "../../config";
 
@@ -12,7 +12,10 @@ module.exports = async (client: Client) => {
 
     /* Register youtube extractor */
     player.extractors.register(YoutubeiExtractor, {
-        authentication: config.extractors.youtube.token
+        authentication: config.extractors.youtube.token,
+        streamOptions: {
+            useClient: 'ANDROID'
+        }
     })
 
     await player.extractors.loadDefault((ext) => ext !== 'YouTubeExtractor');
@@ -38,13 +41,19 @@ module.exports = async (client: Client) => {
         const channel = (queue.metadata as MessageCommand).channel;
         if (!channel) return;
 
-        (channel as TextChannel).send(`Now playing **${ track.title }**`);
+        (channel as TextChannel).send({ content: '', embeds: [new EmbedBuilder()
+            .setColor(0x2b2d31)
+            .setDescription(`Now playing **${ track.title }** [${ track.duration }] ● ${ track.requestedBy }`)
+        ] });
     });
 
     player.events.on('emptyQueue', (queue) => {
         const channel = (queue.metadata as MessageCommand).channel;
         if (!channel) return;
 
-        (channel as TextChannel).send('**Reached end of queue**');
+        (channel as TextChannel).send({ content: '', embeds: [new EmbedBuilder()
+            .setColor(0x2b2d31)
+            .setDescription(`Queue ended.`)
+        ] });
     });
 }

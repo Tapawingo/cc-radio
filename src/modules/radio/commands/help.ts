@@ -1,20 +1,26 @@
 import path from 'path';
 import fs from 'fs';
 import { MessageCommand, MessageCommandArgumentBuilder, MessageCommandBuilder } from "../../../utils/messageCommand";
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, Events, Message } from 'discord.js';
+import { ActionRowBuilder, APIEmbedField, ButtonBuilder, ButtonStyle, EmbedBuilder, Events, Message, unorderedList } from 'discord.js';
 import { config } from '../../../config';
 
 module.exports = {
 	data: new MessageCommandBuilder()
         .setName('help')
         .setDescription('Displays a help message.')
+        .addArgument(option => option
+            .setName('command')
+            .setDescription('Name of command to get detailed description for.')
+        )
         .setAlias(['h']),
 
 	async execute(interaction: MessageCommand) {
         const message = await interaction.deferReply();
+        const args = interaction.arguments;
 
         try {
             if (!interaction.guild) throw new Error('No guild');
+
             
             const commands = fs.readdirSync(__dirname).filter(file => file.endsWith('.ts'));
 
@@ -29,7 +35,51 @@ module.exports = {
                 }
             }
 
-            console.log(commandsData);
+            if (args && args.length > 0) {
+                const commandName = args[0];
+                const command: MessageCommandBuilder = commandsData.find(arg => arg.name === commandName);
+
+                if (!command) throw new Error('UnknownArgumentCommand');
+
+                const fields: APIEmbedField[] = [{ 
+                    name: 'Usage', 
+                    value: `\`\`\`properties\n${ config.bot.command_prefix }${ command.name } ${ commandArgs(command.args) }\n\`\`\``
+                }];
+
+                if (command.args.length > 0) {
+                    command.args.forEach(arg => {
+                        fields.push({
+                            name: `**${ arg.name }${ arg.required ? '*' : '' }**`,
+                            value: command.args.map(arg => {
+                                const argHelp = [`${ arg.description }`];
+
+                                if (arg.choices) {
+                                    argHelp.push(`\n__Possible values:__`);
+                                    argHelp.push(unorderedList(arg.choices));
+                                }
+
+                                return argHelp.join('\n')
+                            }).join('\n'),
+                            inline: true
+                        });
+                    });
+                }
+
+                interaction.editReply({ content: '', embeds: [
+                    new EmbedBuilder()
+                        .setTitle(`${ command.name } (${ command.alias?.join(', ') })`)
+                        .setColor(0x2b2d31)
+                        .setDescription([
+                            `${ command.description }`
+                        ].join('\n'))
+                        .setFields(fields)
+                        .setFooter({
+                            text: `Arguments with "<>" are required and "()" are optional.`
+                        })
+                ] })
+
+                return;
+            }
 
             pagedEmbed(interaction, message, commandsData);
         } catch (e: any) {
@@ -59,7 +109,7 @@ const pagedEmbed = async (interaction: MessageCommand, message: Message, command
 
         return new EmbedBuilder()
             .setTitle('Help')
-            .setColor(13632027)
+            .setColor(0x2b2d31)
             .setDescription(
                 page_commands.map(command => {
                     return [
@@ -71,7 +121,7 @@ const pagedEmbed = async (interaction: MessageCommand, message: Message, command
                 }).join('\n')
             )
             .setFooter({
-                text: `Page ${ current_page }/${ pages } | Arguments with"<>" are required; "()" are optional`
+                text: `Page ${ current_page }/${ pages } | Arguments with "<>" are required and "()" are optional.`
             })
     }
 

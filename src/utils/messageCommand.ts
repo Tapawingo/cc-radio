@@ -103,10 +103,21 @@ export class MessageCommandBuilder {
 export class MessageCommandArgumentBuilder {
   public name!: string;
   public description: string = '';
+  public choices?: string[];
   public required: boolean = false;
 
   public setName(name: string): this {
     this.name = name;
+    return this;
+  }
+
+  public setDescription(description: string): this {
+    this.description = description;
+    return this;
+  }
+
+  public setChoices(choices: string[]): this {
+    this.choices = choices;
     return this;
   }
 

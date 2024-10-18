@@ -1,5 +1,6 @@
 import { QueueRepeatMode, useQueue } from "discord-player";
 import { MessageCommand, MessageCommandBuilder } from "../../../utils/messageCommand";
+import { EmbedBuilder } from "discord.js";
 
 module.exports = {
 	data: new MessageCommandBuilder()
@@ -7,6 +8,13 @@ module.exports = {
         .setDescription('Loops track, queue or autoplays tracks.')
         .addArgument(option => option
             .setName('mode')
+            .setDescription('How the player should loop.')
+            .setChoices([
+                '0 | off (no repeat)',
+                '1 | track (track repeat)',
+                '2 | queue (queue repeat)',
+                '3 | autoplay (autoplay)'
+            ])
             .setRequired(true)
         )
         .setAlias(['lo']),
@@ -26,7 +34,10 @@ module.exports = {
             if (!loopMode) throw new Error('UnknownLoopMode')
 
             queue.setRepeatMode(loopMode);
-            await interaction.editReply(`Set loop mode to ${ loopModeName(QueueRepeatMode, loopMode) }`);
+            await interaction.editReply({ content: '', embeds: [new EmbedBuilder()
+                .setColor(0x2b2d31)
+                .setDescription(`Set loop mode to ${ loopModeName(QueueRepeatMode, loopMode) }`)
+            ] });
         } catch (e: any) {
             console.error(e, 'RADIO');
             switch (e.message) {
@@ -56,8 +67,8 @@ function getLoopMode(arg: string): number | null {
         }
     }
 
-    if (arg in QueueRepeatMode) {
-        return QueueRepeatMode[arg as keyof typeof QueueRepeatMode];
+    if (arg.toUpperCase() in QueueRepeatMode) {
+        return QueueRepeatMode[arg.toUpperCase() as keyof typeof QueueRepeatMode];
     }
 
     return null;

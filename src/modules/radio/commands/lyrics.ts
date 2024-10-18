@@ -37,7 +37,7 @@ module.exports = {
                         name: lyrics[0].artistName
                     })
                     .setDescription(trimmedLyrics.length === 1997 ? `${trimmedLyrics}...` : trimmedLyrics)
-                    .setColor(13632027)
+                    .setColor(0x2b2d31)
             ] });
         } catch (e: any) {
             console.error(e, 'RADIO');

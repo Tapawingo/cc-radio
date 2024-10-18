@@ -117,7 +117,7 @@ client.on(Events.Error, e => {
     console.error(e, 'DISCORDJS');
 });
 
-if (parseInt(env.LOG_LEVEL ?? '1') < 1) {
+if (parseInt(env.IGNORE_UNCAUGHT ?? '1') == 1) {
     process.on('uncaughtException', (e) => {
         console.error(e, 'UNCAUGHT');
     });

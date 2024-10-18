@@ -1,5 +1,6 @@
 import { useQueue } from "discord-player";
 import { MessageCommand, MessageCommandBuilder } from "../../../utils/messageCommand";
+import { EmbedBuilder } from "discord.js";
 
 module.exports = {
 	data: new MessageCommandBuilder()
@@ -16,7 +17,10 @@ module.exports = {
             if (!queue) return;
 
             queue.tracks.shuffle();
-            await interaction.reply(`Shuffled queue.`);
+            await interaction.reply({ content: '', embeds: [new EmbedBuilder()
+                .setColor(0x2b2d31)
+                .setDescription(`Shuffled queue.`)
+            ] });
         } catch (e: any) {
             console.error(e, 'RADIO');
             switch (e.message) {

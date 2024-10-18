@@ -1,1 +1,0 @@
-{"root":["./src/config.ts","./src/index.ts","./src/@types/discord.d.ts","./src/modules/radio/index.ts","./src/modules/radio/commands/play.ts","./src/modules/radio/commands/purge.ts","./src/modules/radio/commands/queue.ts","./src/modules/radio/commands/skip.ts","./src/utils/console.ts","./src/utils/messagecommand.ts","./src/utils/parsecommand.ts"],"version":"5.6.2"}

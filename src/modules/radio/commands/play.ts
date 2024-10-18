@@ -1,6 +1,6 @@
 import { EmbedBuilder } from 'discord.js';
 import { MessageCommandBuilder, MessageCommand } from '../../../utils/messageCommand';
-import { Track, useMainPlayer } from "discord-player";
+import { SearchResult, Track, useMainPlayer } from "discord-player";
 
 module.exports = {
 	data: new MessageCommandBuilder()
@@ -8,6 +8,7 @@ module.exports = {
         .setDescription('Play a track from either a URL or an attached file.')
         .addArgument(option => option
             .setName('query or file Attachment')
+            .setDescription('Can be a attached file, search text or a url.')
             .setRequired(true)
         )
         .setAlias(['p']),
@@ -36,7 +37,7 @@ module.exports = {
                         requestedBy: interaction.member.user
                     });
 
-                    reply(interaction, track);
+                    await trackReply(interaction, track);
                     return;
                 } catch (e: any) {
                     console.error(e);
@@ -52,11 +53,11 @@ module.exports = {
             });
 
             if (searchResult.hasPlaylist()) {
-                await interaction.editReply(`Queued **${ searchResult.tracks.length }** tracks.`);
+                await queueReply(interaction, searchResult);
                 return;
             }
 
-            reply(interaction, track);
+            await trackReply(interaction, track);
         } catch (e: any) {
             console.error(e, 'RADIO');
             switch (e.message) {
@@ -69,6 +70,14 @@ module.exports = {
                     break;
 
                 default:
+                    if (e.name.includes('ERR_NO_RESULT')) {
+                        await interaction.editReply({ content: '', embeds: [new EmbedBuilder()
+                            .setColor(0x2b2d31)
+                            .setDescription(`**0** results for query.`)
+                        ] });
+                        break;
+                    }
+
                     await interaction.editReply(`Something went wrong.`);
                     break;
             }
@@ -76,15 +85,18 @@ module.exports = {
 	},
 };
 
-const reply = async (interaction: MessageCommand, track: Track) => {
-    await interaction.editReply({ embeds: [
+const trackReply = async (interaction: MessageCommand, track: Track) => {
+    await interaction.editReply({ content: '', embeds: [
         new EmbedBuilder()
-            .setColor(13632027)
-            .setTitle('Queued:')
-            .setDescription(`[${ track.title }](${ track.url })`)
-            .setThumbnail(track.thumbnail ?? 'https://cdn.discordapp.com/attachments/325719272745861126/1085462710847819816/cc_radio.jpg')
-            .setFields([
-                { name: 'Duration', value: `\`${ track.duration }\``, inline: true }
-            ])
+            .setColor(0x2b2d31)
+            .setDescription(`Queued **${ track.title }** [${ track.duration }] ● <@${ interaction.member?.id }>`)
+    ] });
+}
+
+const queueReply = async (interaction: MessageCommand, searchResult: SearchResult) => {
+    await interaction.editReply({ content: '', embeds: [
+        new EmbedBuilder()
+            .setColor(0x2b2d31)
+            .setDescription(`Queued **${ searchResult.tracks.length } tracks** [${ searchResult.playlist?.durationFormatted }] ● <@${ interaction.member?.id }>`)
     ] });
 }

@@ -16,7 +16,10 @@ module.exports = {
             const queue = useQueue(interaction.guild.id);
 
             if (!queue) {
-                await interaction.editReply('**Queue is empty**');
+                await interaction.editReply({ content: '', embeds: [new EmbedBuilder()
+                    .setColor(0x2b2d31)
+                    .setDescription(`There is nothing queued.`)
+                ] });
                 return;
             }
             pagedEmbed(interaction, message, queue);
@@ -50,13 +53,18 @@ const pagedEmbed = async (interaction: MessageCommand, message: Message, queue: 
         const current_page = Math.floor(start / 10) + 1;
         const pages = Math.floor((queue.tracks.size + 1) / 10) + 1;
 
-        const total_durationMS = queue.tracks.toArray().reduce((a, b) => {
+        const total_tracks = queue.tracks.size + 1;
+        let total_durationMS = queue.tracks.toArray().reduce((a, b) => {
             return a + b.durationMS
         }, 0);
 
+        if (current_track) {
+            total_durationMS += current_track.durationMS
+        }
+
         return new EmbedBuilder()
             .setTitle('Queue')
-            .setColor(13632027)
+            .setColor(0x2b2d31)
             .setDescription([
                 `**Now playing:** [${ current_track?.title }](${ current_track?.url }) \`[${ current_track?.duration }]\` ● ${ current_track?.requestedBy }.`,
                 ` `,
@@ -66,7 +74,7 @@ const pagedEmbed = async (interaction: MessageCommand, message: Message, queue: 
                 }).join('\n')
             ].join('\n'))
             .setFooter({
-                text: `Page ${ current_page }/${ pages } | ${ queue.tracks.size } song(s) | ${ msToHMS(total_durationMS) } total duration`
+                text: `Page ${ current_page }/${ pages } | ${ total_tracks } song(s) | ${ msToHMS(total_durationMS) } total duration`
             })
     }
 
@@ -113,9 +121,18 @@ function msToHMS(ms: number) {
     const minutes = Math.floor(seconds / 60);
     seconds = seconds % 60;
 
-    let formatted = `${ seconds }`;
-    if (minutes > 0) formatted = `${ minutes }:` + formatted
-    if (hours > 0) formatted = `${ hours }:` + formatted
+    let formatted = `${ seconds.toLocaleString('en-US', {
+        minimumIntegerDigits: 2,
+        useGrouping: false
+    }) }`;
+    if (minutes > 0) formatted = `${ minutes.toLocaleString('en-US', {
+        minimumIntegerDigits: 2,
+        useGrouping: false
+    }) }:` + formatted
+    if (hours > 0) formatted = `${ hours.toLocaleString('en-US', {
+        minimumIntegerDigits: 2,
+        useGrouping: false
+    }) }:` + formatted
 
     return formatted;
 }
